@@ -35,6 +35,7 @@ jobs:
             - name: Dump Docker logs
               run: |
                   set -eux -o pipefail
+                  sleep 60
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs
             - name: Check webapp
               run: |
