@@ -23,4 +23,4 @@ jobs:
               run: |
                   set -eux -o pipefail
                   ./mkdatadirs.sh local.docker-compose.yml
-                  UID=$(id -u) GID=$(id -g) docker compose -f local.docker-compose.yml up --build -d
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml up --build -d
