@@ -22,5 +22,9 @@ jobs:
             - name: Build
               run: |
                   set -eux -o pipefail
+                  sudo apt -y install wait-for-it
                   ./mkdatadirs.sh local.docker-compose.yml
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml up --build -d
+                  wait-for-it localhost:9999 --timeout=300
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs
+                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/biotestmine/"
