@@ -1,0 +1,26 @@
+---
+# yamllint disable rule:line-length
+name: Docker
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '.github/workflows/docker.yml'
+            - 'intermine_builder/**'
+            - 'local.docker-compose.yml'
+            - 'mkdatadirs.sh'
+            - 'postgres/**'
+            - 'solr/**'
+            - 'tomcat/**'
+
+jobs:
+    docker:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Build
+              run: |
+                  set -eux -o pipefail
+                  ./mkdatadirs.sh local.docker-compose.yml
+                  UID=$(id -u) GID=$(id -g) docker compose -f local.docker-compose.yml up --build -d
