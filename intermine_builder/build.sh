@@ -3,6 +3,7 @@
 set -eux -o pipefail
 
 THE_MINE_NAME=${MINE_NAME:-biotestmine}
+FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
 
 if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
