@@ -1,4 +1,3 @@
-version: "3"
 services:
   intermine_builder:
     container_name: intermine_builder
