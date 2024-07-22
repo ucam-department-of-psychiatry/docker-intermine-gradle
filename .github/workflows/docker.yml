@@ -36,8 +36,11 @@ jobs:
               run: |
                   set -eux -o pipefail
                   cd ${GITHUB_WORKSPACE}
-                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml up --build -d
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml build
+                  # Wait for builder to finish and return exit code
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml wait intermine_builder
                   # Wait 15 minutes
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml up -d
                   wait-for-it localhost:9999 --timeout=900
             - name: Dump Docker logs
               run: |
