@@ -27,9 +27,15 @@ jobs:
               run: |
                   set -eux -o pipefail
                   ./mkdatadirs.sh local.docker-compose.yml
+            - name: Clone camCHILDMine
+              run: |
+                  set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}/data/mine
+                  git clone https://github.com/ucam-department-of-psychiatry/camCHILDMine
             - name: Build
               run: |
                   set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml up --build -d
                   # Wait 15 minutes
                   wait-for-it localhost:9999 --timeout=900
