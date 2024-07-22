@@ -182,7 +182,7 @@ psql -U postgres -h ${PGHOST:-postgres} -c "ALTER USER ${PSQL_USER:-postgres} WI
 psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"${THE_MINE_NAME}\";"
 psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"items-${THE_MINE_NAME}\";"
 psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"userprofile-${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE ${THE_MINE_NAME} to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 
