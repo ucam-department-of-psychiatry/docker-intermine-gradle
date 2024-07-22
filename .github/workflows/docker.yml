@@ -37,7 +37,7 @@ jobs:
                   set -eux -o pipefail
                   cd ${GITHUB_WORKSPACE}
                   # Try to trap any build errors early
-                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml run intermine_builder -d
+                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml run -d --rm intermine_builder
                   # Wait for builder to finish and return exit code
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml wait intermine_builder
                   # Wait 15 minutes
