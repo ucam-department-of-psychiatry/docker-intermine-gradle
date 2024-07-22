@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eux -o pipefail
+
 THE_MINE_NAME=${MINE_NAME:-biotestmine}
 
 if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
