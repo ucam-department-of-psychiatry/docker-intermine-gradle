@@ -44,4 +44,4 @@ jobs:
             - name: Check webapp
               run: |
                   set -eux -o pipefail
-                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/biotestmine/"
+                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/camCHILDMine/"
