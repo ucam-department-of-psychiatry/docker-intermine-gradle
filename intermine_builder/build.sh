@@ -15,8 +15,6 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE
     exit 0
 fi
 
-set -e
-
 cd /home/intermine/intermine
 
 # Empty log
