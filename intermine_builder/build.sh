@@ -1,10 +1,12 @@
 #!/bin/bash
 
-if [ -d ${MINE_NAME:-biotestmine} ] && [ ! -z "$(ls -A ${MINE_NAME:-biotestmine})" ] && [ ! $FORCE_MINE_BUILD ]; then
-    echo "$(date +%Y/%m/%d-%H:%M) Mine already exists"
+THE_MINE_NAME=${MINE_NAME:-biotestmine}
+
+if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
+    echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
     cd /home/intermine/intermine
-    cd ${MINE_NAME:-biotestmine}
+    cd ${THE_MINE_NAME}
     ./gradlew cargoDeployRemote --stacktrace
     sleep 60
     ./gradlew cargoRedeployRemote --stacktrace
@@ -44,71 +46,71 @@ fi
 echo "Starting mine build"
 echo $MINE_REPO_URL
 # Check if mine exists and is not empty
-if [ -d ${MINE_NAME:-biotestmine} ] && [ ! -z "$(ls -A ${MINE_NAME:-biotestmine})" ]; then
-    echo "$(date +%Y/%m/%d-%H:%M) Update ${MINE_NAME:-biotestmine} to newest version" #>> /home/intermine/intermine/build.progress
-    cd ${MINE_NAME:-biotestmine}
+if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ]; then
+    echo "$(date +%Y/%m/%d-%H:%M) Update ${THE_MINE_NAME} to newest version" #>> /home/intermine/intermine/build.progress
+    cd ${THE_MINE_NAME}
     # git pull
     cd /home/intermine/intermine
 else
-    # echo "$(date +%Y/%m/%d-%H:%M) Clone ${MINE_NAME:-biotestmine}" #>> /home/intermine/intermine/build.progress
-    echo "$(date +%Y/%m/%d-%H:%M) Clone ${MINE_NAME:-biotestmine}"
-    git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${MINE_NAME:-biotestmine}
+    # echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}" #>> /home/intermine/intermine/build.progress
+    echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}"
+    git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${THE_MINE_NAME}
     echo "$(date +%Y/%m/%d-%H:%M) Update keyword_search.properties to use http://solr" #>> /home/intermine/intermine/build.progress
-    sed -i 's/localhost/'${SOLR_HOST:-solr}'/g' ./${MINE_NAME:-biotestmine}/dbmodel/resources/keyword_search.properties
+    sed -i 's/localhost/'${SOLR_HOST:-solr}'/g' ./${THE_MINE_NAME}/dbmodel/resources/keyword_search.properties
 fi
 
 # If InterMine or Bio versions have been set (likely because of a custom
 # InterMine build), update gradle.properties in the mine.
 if [ ! -z ${IM_VERSION} ]; then
-    sed -i "s/\(systemProp\.imVersion=\).*\$/\1${IM_VERSION}/" /home/intermine/intermine/${MINE_NAME:-biotestmine}/gradle.properties
+    sed -i "s/\(systemProp\.imVersion=\).*\$/\1${IM_VERSION}/" /home/intermine/intermine/${THE_MINE_NAME}/gradle.properties
 fi
 if [ ! -z ${BIO_VERSION} ]; then
-    sed -i "s/\(systemProp\.bioVersion=\).*\$/\1${BIO_VERSION}/" /home/intermine/intermine/${MINE_NAME:-biotestmine}/gradle.properties
+    sed -i "s/\(systemProp\.bioVersion=\).*\$/\1${BIO_VERSION}/" /home/intermine/intermine/${THE_MINE_NAME}/gradle.properties
 fi
 
 # Copy project_build from intermine_scripts repo
-if [ ! -f /home/intermine/intermine/${MINE_NAME:-biotestmine}/project_build ]; then
+if [ ! -f /home/intermine/intermine/${THE_MINE_NAME}/project_build ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Cloning intermine scripts repo to /home/intermine/intermine/intermine-scripts"
     git clone https://github.com/intermine/intermine-scripts
-    echo "$(date +%Y/%m/%d-%H:%M) Copy project_build to /home/intermine/intermine/${MINE_NAME:-biotestmine}"
-    cp /home/intermine/intermine/intermine-scripts/project_build /home/intermine/intermine/${MINE_NAME:-biotestmine}/project_build
-    chmod +x /home/intermine/intermine/${MINE_NAME:-biotestmine}/project_build
+    echo "$(date +%Y/%m/%d-%H:%M) Copy project_build to /home/intermine/intermine/${THE_MINE_NAME}"
+    cp /home/intermine/intermine/intermine-scripts/project_build /home/intermine/intermine/${THE_MINE_NAME}/project_build
+    chmod +x /home/intermine/intermine/${THE_MINE_NAME}/project_build
 fi
 
 # Copy mine properties
-if [ ! -f /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties ]; then
-    if [ ! -f /home/intermine/intermine/configs/${MINE_NAME:-biotestmine}.properties ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy biotestmine.properties to ~/.intermine/${MINE_NAME:-biotestmine}.properties" #>> /home/intermine/intermine/build.progress
-        cp /home/intermine/intermine/${MINE_NAME:-biotestmine}/data/${MINE_NAME:-biotestmine}.properties /home/intermine/.intermine/
+if [ ! -f /home/intermine/.intermine/${THE_MINE_NAME}.properties ]; then
+    if [ ! -f /home/intermine/intermine/configs/${THE_MINE_NAME}.properties ]; then
+        echo "$(date +%Y/%m/%d-%H:%M) Copy biotestmine.properties to ~/.intermine/${THE_MINE_NAME}.properties" #>> /home/intermine/intermine/build.progress
+        cp /home/intermine/intermine/${THE_MINE_NAME}/data/${THE_MINE_NAME}.properties /home/intermine/.intermine/
     else
-        echo "$(date +%Y/%m/%d-%H:%M) Copy ${MINE_NAME:-biotestmine}.properties to ~/.intermine/${MINE_NAME:-biotestmine}.properties"
-        cp /home/intermine/intermine/configs/${MINE_NAME:-biotestmine}.properties /home/intermine/.intermine/
+        echo "$(date +%Y/%m/%d-%H:%M) Copy ${THE_MINE_NAME}.properties to ~/.intermine/${THE_MINE_NAME}.properties"
+        cp /home/intermine/intermine/configs/${THE_MINE_NAME}.properties /home/intermine/.intermine/
     fi
 
-    echo -e "$(date +%Y/%m/%d-%H:%M) Set properties in .intermine/${MINE_NAME:-biotestmine}.properties to\nPSQL_DB_NAME\tbiotestmine\nPSQL_USER\t$PSQL_USER\nPSQL_PWD\t$PSQL_PWD\nTOMCAT_USER\t$TOMCAT_USER\nTOMCAT_PWD\t$TOMCAT_PWD\nGRADLE_OPTS\t$GRADLE_OPTS" #>> /home/intermine/intermine/build.progress
+    echo -e "$(date +%Y/%m/%d-%H:%M) Set properties in .intermine/${THE_MINE_NAME}.properties to\nPSQL_DB_NAME\tbiotestmine\nPSQL_USER\t$PSQL_USER\nPSQL_PWD\t$PSQL_PWD\nTOMCAT_USER\t$TOMCAT_USER\nTOMCAT_PWD\t$TOMCAT_PWD\nGRADLE_OPTS\t$GRADLE_OPTS" #>> /home/intermine/intermine/build.progress
 
-    #sed -i "s/PSQL_PORT/$PGPORT/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/PSQL_DB_NAME/${MINE_NAME:-biotestmine}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/PSQL_USER/${PSQL_USER:-postgres}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/PSQL_PWD/${PSQL_PWD:-postgres}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${TOMCAT_HOST:-tomcat}:${TOMCAT_PORT:-8080}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    sed -i "s/serverName=localhost/serverName=${PGHOST:-postgres}:${PGPORT:-5432}/g" /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
+    #sed -i "s/PSQL_PORT/$PGPORT/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/PSQL_DB_NAME/${THE_MINE_NAME}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/PSQL_USER/${PSQL_USER:-postgres}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/PSQL_PWD/${PSQL_PWD:-postgres}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${TOMCAT_HOST:-tomcat}:${TOMCAT_PORT:-8080}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/serverName=localhost/serverName=${PGHOST:-postgres}:${PGPORT:-5432}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
 
 
-    # echo "project.rss=http://localhost:$WORDPRESS_PORT/?feed=rss2" >> /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
-    # echo "links.blog=https://localhost:$WORDPRESS_PORT" >> /home/intermine/.intermine/${MINE_NAME:-biotestmine}.properties
+    # echo "project.rss=http://localhost:$WORDPRESS_PORT/?feed=rss2" >> /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    # echo "links.blog=https://localhost:$WORDPRESS_PORT" >> /home/intermine/.intermine/${THE_MINE_NAME}.properties
 fi
 
 # Copy mine configs
-if [ ! -f /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml ]; then
+if [ ! -f /home/intermine/intermine/${THE_MINE_NAME}/project.xml ]; then
     if [ -f /home/intermine/intermine/configs/project.xml ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy project.xml to ~/${MINE_NAME:-biotestmine}/project.xml"
-        cp /home/intermine/intermine/configs/project.xml /home/intermine/intermine/${MINE_NAME:-biotestmine}/
+        echo "$(date +%Y/%m/%d-%H:%M) Copy project.xml to ~/${THE_MINE_NAME}/project.xml"
+        cp /home/intermine/intermine/configs/project.xml /home/intermine/intermine/${THE_MINE_NAME}/
         echo "$(date +%Y/%m/%d-%H:%M) Set correct source path in project.xml"
-        sed -i 's/'${IM_DATA_DIR:-DATA_DIR}'/\/home\/intermine\/intermine\/data/g' /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml
-        sed -i 's/dump="true"/dump="false"/g' /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml
+        sed -i 's/'${IM_DATA_DIR:-DATA_DIR}'/\/home\/intermine\/intermine\/data/g' /home/intermine/intermine/${THE_MINE_NAME}/project.xml
+        sed -i 's/dump="true"/dump="false"/g' /home/intermine/intermine/${THE_MINE_NAME}/project.xml
     else
         echo "$(date +%Y/%m/%d-%H:%M) Copy project.xml to ~/biotestmine/project.xml" #>> /home/intermine/intermine/build.progress
         cp /home/intermine/intermine/biotestmine/data/project.xml /home/intermine/intermine/biotestmine/
@@ -120,8 +122,8 @@ if [ ! -f /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml ]; the
     fi
 else
     echo "$(date +%Y/%m/%d-%H:%M) Set correct source path in project.xml"
-    sed -i "s~${IM_DATA_DIR:-DATA_DIR}~/home/intermine/intermine/data~g" /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml
-    sed -i 's/dump="true"/dump="false"/g' /home/intermine/intermine/${MINE_NAME:-biotestmine}/project.xml
+    sed -i "s~${IM_DATA_DIR:-DATA_DIR}~/home/intermine/intermine/data~g" /home/intermine/intermine/${THE_MINE_NAME}/project.xml
+    sed -i 's/dump="true"/dump="false"/g' /home/intermine/intermine/${THE_MINE_NAME}/project.xml
 fi
 
 # Copy data
@@ -164,9 +166,9 @@ echo "$(date +%Y/%m/%d-%H:%M) Database is now available ..." #>> /home/intermine
 echo "$(date +%Y/%m/%d-%H:%M) Reset databases and roles" #>> /home/intermine/intermine/build.progress
 
 # Delete Databases if exist
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"${MINE_NAME:-biotestmine}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"items-${MINE_NAME:-biotestmine}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"userprofile-${MINE_NAME:-biotestmine}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"${THE_MINE_NAME}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"items-${THE_MINE_NAME}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"userprofile-${THE_MINE_NAME}\";"
 
 # psql -U postgres -h ${PGHOST:-postgres} -c "DROP ROLE IF EXISTS ${PSQL_USER:-postgres};"
 
@@ -174,15 +176,15 @@ psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"userprofil
 echo "$(date +%Y/%m/%d-%H:%M) Creating postgres database tables and roles.." #>> /home/intermine/intermine/build.progress
 # psql -U postgres -h ${PGHOST:-postgres} -c "CREATE USER ${PSQL_USER:-postgres} WITH PASSWORD '${PSQL_PWD:-postgres}';"
 psql -U postgres -h ${PGHOST:-postgres} -c "ALTER USER ${PSQL_USER:-postgres} WITH SUPERUSER;"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"${MINE_NAME:-biotestmine}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"items-${MINE_NAME:-biotestmine}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"userprofile-${MINE_NAME:-biotestmine}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE ${MINE_NAME:-biotestmine} to ${PSQL_USER:-postgres};"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-${MINE_NAME:-biotestmine}\" to ${PSQL_USER:-postgres};"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${MINE_NAME:-biotestmine}\" to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"${THE_MINE_NAME}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"items-${THE_MINE_NAME}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"userprofile-${THE_MINE_NAME}\";"
+psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE ${THE_MINE_NAME} to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 
 
-cd ${MINE_NAME:-biotestmine}
+cd ${THE_MINE_NAME}
 
 echo "$(date +%Y/%m/%d-%H:%M) Running project_build script"
 ./project_build -b -T localhost /home/intermine/intermine/dump/dump
