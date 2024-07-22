@@ -32,6 +32,7 @@ jobs:
                   set -eux -o pipefail
                   cd ${GITHUB_WORKSPACE}/data/mine
                   git clone https://github.com/ucam-department-of-psychiatry/camCHILDMine
+                  git checkout cadre-dev
             - name: Build
               run: |
                   set -eux -o pipefail
