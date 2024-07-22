@@ -6,7 +6,8 @@ ENV JAVA_HOME="/usr/lib/jvm/default-jvm"
 RUN apk add --no-cache openjdk8 openjdk8-jre && \
     ln -sf "${JAVA_HOME}/bin/"* "/usr/bin/"
 
-RUN apk add --no-cache git \
+RUN apk add --no-cache bash \
+                       git \
                        maven \
                        postgresql-client \
                        perl \
