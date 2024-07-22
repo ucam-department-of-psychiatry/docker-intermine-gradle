@@ -83,7 +83,7 @@ fi
 # Copy mine properties
 if [ ! -f /home/intermine/.intermine/${THE_MINE_NAME}.properties ]; then
     if [ ! -f /home/intermine/intermine/configs/${THE_MINE_NAME}.properties ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy biotestmine.properties to ~/.intermine/${THE_MINE_NAME}.properties" #>> /home/intermine/intermine/build.progress
+        echo "$(date +%Y/%m/%d-%H:%M) Copy ${THE_MINE_NAME}.properties to ~/.intermine/${THE_MINE_NAME}.properties" #>> /home/intermine/intermine/build.progress
         cp /home/intermine/intermine/${THE_MINE_NAME}/data/${THE_MINE_NAME}.properties /home/intermine/.intermine/
     else
         echo "$(date +%Y/%m/%d-%H:%M) Copy ${THE_MINE_NAME}.properties to ~/.intermine/${THE_MINE_NAME}.properties"
