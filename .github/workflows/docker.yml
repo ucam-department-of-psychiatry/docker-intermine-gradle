@@ -34,18 +34,26 @@ jobs:
                   git clone https://github.com/ucam-department-of-psychiatry/camCHILDMine
                   cd camCHILDMine
                   git checkout cadre-dev
-            - name: Build
+            - name: Run
               run: |
                   set -eux -o pipefail
                   cd ${GITHUB_WORKSPACE}
                   # Try to trap any build errors early
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml run --rm intermine_builder
+            - name: Up
+              run: |
+                  set -eux -o pipefail
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml up -d
+            - name: Wait
+              run: |
+                  set -eux -o pipefail
                   # Wait for builder to finish and return exit code
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=camCHILDMine docker compose -f local.docker-compose.yml wait intermine_builder
                   # Wait 15 minutes
                   wait-for-it localhost:9999 --timeout=900
+
             - name: Dump Docker logs
+              if: failure()
               run: |
                   set -eux -o pipefail
                   sleep 120
