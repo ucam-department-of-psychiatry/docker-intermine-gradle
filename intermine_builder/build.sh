@@ -218,6 +218,6 @@ echo "$(date +%Y/%m/%d-%H:%M) Gradle: build userDB" #>> /home/intermine/intermin
 
 echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp" #>> /home/intermine/intermine/build.progress
 # ./gradlew clean
-./gradlew cargoDeployRemote
+./gradlew cargoDeployRemote  --stacktrace
 sleep 60
 ./gradlew cargoRedeployRemote  --stacktrace #>> /home/intermine/intermine/build.progress
