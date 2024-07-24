@@ -13,8 +13,6 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE
     cd /home/intermine/intermine
     cd ${THE_MINE_NAME}
     ./gradlew cargoDeployRemote --stacktrace
-    sleep 60
-    ./gradlew cargoRedeployRemote --stacktrace
     exit 0
 fi
 
@@ -218,6 +216,5 @@ echo "$(date +%Y/%m/%d-%H:%M) Gradle: build userDB" #>> /home/intermine/intermin
 
 echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp" #>> /home/intermine/intermine/build.progress
 # ./gradlew clean
+# --stacktrace --debug --info --scan
 ./gradlew cargoDeployRemote  --stacktrace
-sleep 60
-./gradlew cargoRedeployRemote  --stacktrace #>> /home/intermine/intermine/build.progress
