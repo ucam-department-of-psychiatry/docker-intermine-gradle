@@ -26,7 +26,7 @@ jobs:
             - name: Make data dirs
               run: |
                   set -eux -o pipefail
-                  ./mkdatadirs.sh local.docker-compose.yml
+                  ./mkdatadirs.sh
             - name: Clone camCHILDMine
               run: |
                   set -eux -o pipefail
