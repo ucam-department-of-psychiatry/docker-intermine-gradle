@@ -55,6 +55,9 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ]; then
 else
     # echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}" #>> /home/intermine/intermine/build.progress
     echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}"
+    echo "User: $(id -u)"
+    echo "Group: $(id -g)"
+    ls -l
     git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${THE_MINE_NAME}
     echo "$(date +%Y/%m/%d-%H:%M) Update keyword_search.properties to use http://solr" #>> /home/intermine/intermine/build.progress
     sed -i 's/localhost/'${SOLR_HOST:-solr}'/g' ./${THE_MINE_NAME}/dbmodel/resources/keyword_search.properties
@@ -218,3 +221,6 @@ echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp" #>> /home/intermine/intermin
 # ./gradlew clean
 # --stacktrace --debug --info --scan
 ./gradlew cargoDeployRemote  --stacktrace
+
+# Debug: Keep the container going
+# tail -f /dev/null

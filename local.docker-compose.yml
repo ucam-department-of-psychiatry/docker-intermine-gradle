@@ -1,24 +1,75 @@
+volumes:
+  dump_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/mine/dump"
+
+  configs_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/mine/configs"
+
+  packages_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/mine/packages"
+
+  dot_intermine_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/mine/intermine"
+
+  mine_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/mine/${MINE_NAME}"
+
+  postgres_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/postgres"
+
+  solr_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/solr"
+
 services:
   intermine_builder:
     container_name: intermine_builder
     build:
       context: ./intermine_builder
       dockerfile: ./intermine_builder.Dockerfile
-    user: ${DOCKER_UID:-1000}:${DOCKER_GID:-1000}
+      args:
+        - USER_ID=${DOCKER_UID}
+        - GROUP_ID=${DOCKER_GID}
     volumes:
-      # - ./data/mine/data:/home/intermine/intermine/data
-      - ./data/mine/dump:/home/intermine/intermine/dump
-      - ./data/mine/configs:/home/intermine/intermine/configs
-      - ./data/mine/packages:/home/intermine/.m2
-      - ./data/mine/intermine:/home/intermine/.intermine
-      - ./data/mine/${MINE_NAME:-biotestmine}:/home/intermine/intermine/${MINE_NAME:-biotestmine}
+      - dump_volume:/home/intermine/intermine/dump
+      - configs_volume:/home/intermine/intermine/configs
+      - packages_volume:/home/intermine/.m2
+      - dot_intermine_volume:/home/intermine/.intermine
+      - mine_volume:/home/intermine/intermine/${MINE_NAME}
     environment:
-      - MINE_NAME=${MINE_NAME:-biotestmine}
-      - MINE_REPO_URL=${MINE_REPO_URL:-}
-      - IM_DATA_DIR=${IM_DATA_DIR:-DATA_DIR}
-      - MEM_OPTS=${MEM_OPTS:-"-Xmx2g -Xms1g"}
-      - IM_REPO_URL=${IM_REPO_URL:-}
-      - IM_REPO_BRANCH=${IM_REPO_BRANCH:-}
+      - MINE_NAME=${MINE_NAME}
+      - MINE_REPO_URL=${MINE_REPO_URL}
+      - IM_DATA_DIR=${IM_DATA_DIR}
+      - MEM_OPTS=${MEM_OPTS}
+      - IM_REPO_URL=${IM_REPO_URL}
+      - IM_REPO_BRANCH=${IM_REPO_BRANCH}
     depends_on:
       - postgres
       - solr
@@ -29,9 +80,9 @@ services:
     build:
       context: ./postgres
       dockerfile: ./postgres.Dockerfile
-    user: ${DOCKER_UID:-1000}:${DOCKER_GID:-1000}
+    user: ${DOCKER_UID}:${DOCKER_GID}
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
 
   solr:
     container_name: intermine_solr
@@ -39,11 +90,11 @@ services:
       context: ./solr
       dockerfile: ./solr.Dockerfile
     environment:
-      - MEM_OPTS=${MEM_OPTS:-"-Xmx2g -Xms1g"}
-      - MINE_NAME=${MINE_NAME:-biotestmine}
-    user: ${DOCKER_UID:-1000}:${DOCKER_GID:-1000}
+      - MEM_OPTS=${MEM_OPTS}
+      - MINE_NAME=${MINE_NAME}
+    user: ${DOCKER_UID}:${DOCKER_GID}
     volumes:
-      - ./data/solr:/var/solr
+      - solr_volume:/var/solr
 
   tomcat:
     container_name: intermine_tomcat
@@ -51,12 +102,6 @@ services:
       context: ./tomcat
       dockerfile: ./tomcat.Dockerfile
     environment:
-      - MEM_OPTS=${MEM_OPTS:-"-Xmx1g -Xms500m"}
+      - MEM_OPTS=${MEM_OPTS}
     ports:
-      - ${TOMCAT_HOST_PORT:-9999}:${TOMCAT_PORT:-8080}
-
-# volumes:
-#   PostgresDBData:
-#   SolrDBData:
-#   MineData:
-#   MineConfigs:
+      - ${TOMCAT_HOST_PORT}:${TOMCAT_PORT}

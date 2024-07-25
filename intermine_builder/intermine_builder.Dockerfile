@@ -1,6 +1,17 @@
 FROM alpine:3.12.5
 LABEL maintainer="Ank"
 
+# -----------------------------------------------------------------------------
+# Permissions
+# -----------------------------------------------------------------------------
+# https://vsupalov.com/docker-shared-permissions/
+
+ARG USER_ID
+ARG GROUP_ID
+
+RUN addgroup --gid $GROUP_ID intermine
+RUN adduser -D -g '' -u $USER_ID -G intermine intermine
+
 ENV JAVA_HOME="/usr/lib/jvm/default-jvm"
 
 RUN apk add --no-cache openjdk8 openjdk8-jre && \
@@ -59,9 +70,6 @@ RUN cpanm --force Ouch \
                 #  Digest::MD5 \
                 #  Log::Handler
 
-RUN mkdir /home/intermine && mkdir /home/intermine/intermine
-RUN chmod -R 777 /home/intermine
-
 ENV MEM_OPTS="-Xmx1g -Xms500m"
 ENV GRADLE_OPTS="-server ${MEM_OPTS} -XX:+UseParallelGC -XX:SoftRefLRUPolicyMSPerMB=1 -XX:MaxHeapFreeRatio=99 -Dorg.gradle.daemon=false -Duser.home=/home/intermine"
 ENV HOME="/home/intermine"
@@ -74,8 +82,15 @@ ENV TOMCAT_PWD="tomcat"
 ENV TOMCAT_PORT=8080
 ENV PGPORT=5432
 
+RUN mkdir /home/intermine/intermine
 COPY ./build.sh /home/intermine
-RUN chmod a+rx /home/intermine/build.sh
+RUN chown -R intermine:intermine /home/intermine
+RUN chmod u+x /home/intermine/build.sh
+
+RUN ls -l /home/intermine >> /tmp/log.log
+
 WORKDIR /home/intermine/intermine
+
+USER intermine
 
 CMD ["/bin/sh","/home/intermine/build.sh"]
