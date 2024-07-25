@@ -5,6 +5,7 @@ name: CamCHILDMine
 on:
     push:
         paths:
+            - '.env'
             - '.github/workflows/camchildmine.yml'
             - 'intermine_builder/**'
             - 'local.docker-compose.yml'

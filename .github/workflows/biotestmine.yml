@@ -5,6 +5,7 @@ name: Biotestmine
 on:
     push:
         paths:
+            - '.env'
             - '.github/workflows/biotestmine.yml'
             - 'intermine_builder/**'
             - 'local.docker-compose.yml'
