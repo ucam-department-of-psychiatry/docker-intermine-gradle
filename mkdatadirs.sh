@@ -7,3 +7,5 @@ mkdir -p \
     ./data/mine/intermine \
     ./data/postgres \
     ./data/solr
+
+echo "Don't forget to also mkdir ./data/mine/<your mine name>"
