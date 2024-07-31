@@ -22,8 +22,7 @@ RUN apk add --no-cache bash \
                        maven \
                        postgresql-client \
                        perl \
-                       perl-utils \
-                       wait4x
+                       perl-utils
 
 RUN apk add --no-cache build-base
 RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing perl-moosex
@@ -87,6 +86,9 @@ RUN mkdir /home/intermine/intermine
 COPY ./build.sh /home/intermine
 RUN chown -R intermine:intermine /home/intermine
 RUN chmod u+x /home/intermine/build.sh
+
+COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
+RUN chmod +x /usr/local/bin/wait-for-it
 
 RUN ls -l /home/intermine >> /tmp/log.log
 

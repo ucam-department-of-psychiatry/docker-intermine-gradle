@@ -158,7 +158,7 @@ echo "$(date +%Y/%m/%d-%H:%M) Connect and create Postgres databases" #>> /home/i
 
 # # Wait for database
 # dockerize -wait tcp://postgres:$THE_PGPORT -timeout 60s
-wait4x tcp postgres:5432 --timeout 120s
+wait-for-it postgres:5432 -t 300
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
 # Close all open connections to database
