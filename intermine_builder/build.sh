@@ -6,8 +6,20 @@ THE_MINE_NAME=${MINE_NAME:-biotestmine}
 FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
 IM_VERSION=${IM_VERSION:-}
 BIO_VERSION=${BIO_VERSION:-}
-THE_PGPORT=${PGPORT:-5432}
+
 THE_PGHOST=${PGHOST:-postgres}
+THE_PGPORT=${PGPORT:-5432}
+
+THE_SOLR_HOST=${SOLR_HOST:-solr}
+THE_SOLR_PORT=${SOLR_PORT:-8983}
+
+THE_TOMCAT_HOST=${TOMCAT_HOST:-tomcat}
+THE_TOMCAT_PORT=${TOMCAT_PORT:-8080}
+
+# Bail out early if none of these is up
+wait-for-it ${THE_PGHOST}:${THE_PGPORT} -t 60
+wait-for-it ${THE_SOLR_HOST}:${THE_SOLR_PORT} -t 60
+wait-for-it ${THE_TOMCAT_HOST}:${THE_TOMCAT_PORT} -t 60
 
 if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
@@ -62,7 +74,7 @@ else
     ls -l
     git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${THE_MINE_NAME}
     echo "$(date +%Y/%m/%d-%H:%M) Update keyword_search.properties to use http://solr" #>> /home/intermine/intermine/build.progress
-    sed -i 's/localhost/'${SOLR_HOST:-solr}'/g' ./${THE_MINE_NAME}/dbmodel/resources/keyword_search.properties
+    sed -i 's/localhost/'${THE_SOLR_HOST}'/g' ./${THE_MINE_NAME}/dbmodel/resources/keyword_search.properties
 fi
 
 # If InterMine or Bio versions have been set (likely because of a custom
@@ -101,7 +113,7 @@ if [ ! -f /home/intermine/.intermine/${THE_MINE_NAME}.properties ]; then
     sed -i "s/PSQL_PWD/${PSQL_PWD:-postgres}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
-    sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${TOMCAT_HOST:-tomcat}:${TOMCAT_PORT:-8080}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${THE_TOMCAT_HOST}:${THE_TOMCAT_PORT}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/serverName=localhost/serverName=${THE_PGHOST}:${THE_PGPORT}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
 
 
@@ -157,9 +169,6 @@ fi
 
 echo "$(date +%Y/%m/%d-%H:%M) Connect and create Postgres databases" #>> /home/intermine/intermine/build.progress
 
-# # Wait for database
-# dockerize -wait tcp://postgres:$THE_PGPORT -timeout 60s
-wait-for-it postgres:5432 -t 60
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
 # Close all open connections to database
