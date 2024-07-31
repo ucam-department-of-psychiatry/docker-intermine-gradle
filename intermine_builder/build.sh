@@ -7,6 +7,7 @@ FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
 IM_VERSION=${IM_VERSION:-}
 BIO_VERSION=${BIO_VERSION:-}
 THE_PGPORT=${PGPORT:-5432}
+THE_PGHOST=${PGHOST:-postgres}
 
 if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
@@ -94,14 +95,14 @@ if [ ! -f /home/intermine/.intermine/${THE_MINE_NAME}.properties ]; then
 
     echo -e "$(date +%Y/%m/%d-%H:%M) Set properties in .intermine/${THE_MINE_NAME}.properties to\nPSQL_DB_NAME\tbiotestmine\nPSQL_USER\t$PSQL_USER\nPSQL_PWD\t$PSQL_PWD\nTOMCAT_USER\t$TOMCAT_USER\nTOMCAT_PWD\t$TOMCAT_PWD\nGRADLE_OPTS\t$GRADLE_OPTS" #>> /home/intermine/intermine/build.progress
 
-    #sed -i "s/PSQL_PORT/$PGPORT/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    #sed -i "s/PSQL_PORT/${THE_PGPORT}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/PSQL_DB_NAME/${THE_MINE_NAME}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/PSQL_USER/${PSQL_USER:-postgres}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/PSQL_PWD/${PSQL_PWD:-postgres}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${TOMCAT_HOST:-tomcat}:${TOMCAT_PORT:-8080}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
-    sed -i "s/serverName=localhost/serverName=${PGHOST:-postgres}:${THE_PGPORT:-5432}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/serverName=localhost/serverName=${THE_PGHOST}:${THE_PGPORT}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
 
 
     # echo "project.rss=http://localhost:$WORDPRESS_PORT/?feed=rss2" >> /home/intermine/.intermine/${THE_MINE_NAME}.properties
@@ -158,32 +159,32 @@ echo "$(date +%Y/%m/%d-%H:%M) Connect and create Postgres databases" #>> /home/i
 
 # # Wait for database
 # dockerize -wait tcp://postgres:$THE_PGPORT -timeout 60s
-wait-for-it postgres:5432 -t 300
+wait-for-it postgres:5432 -t 60
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
 # Close all open connections to database
-psql -U postgres -h ${PGHOST:-postgres} -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid <> pg_backend_pid();"
+psql -U postgres -h ${THE_PGHOST} -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid <> pg_backend_pid();"
 
 echo "$(date +%Y/%m/%d-%H:%M) Database is now available ..." #>> /home/intermine/intermine/build.progress
 echo "$(date +%Y/%m/%d-%H:%M) Reset databases and roles" #>> /home/intermine/intermine/build.progress
 
 # Delete Databases if exist
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"items-${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "DROP DATABASE IF EXISTS \"userprofile-${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "DROP DATABASE IF EXISTS \"${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "DROP DATABASE IF EXISTS \"items-${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "DROP DATABASE IF EXISTS \"userprofile-${THE_MINE_NAME}\";"
 
-# psql -U postgres -h ${PGHOST:-postgres} -c "DROP ROLE IF EXISTS ${PSQL_USER:-postgres};"
+# psql -U postgres -h ${THE_PGHOST} -c "DROP ROLE IF EXISTS ${PSQL_USER:-postgres};"
 
 # Create Databases
 echo "$(date +%Y/%m/%d-%H:%M) Creating postgres database tables and roles.." #>> /home/intermine/intermine/build.progress
-# psql -U postgres -h ${PGHOST:-postgres} -c "CREATE USER ${PSQL_USER:-postgres} WITH PASSWORD '${PSQL_PWD:-postgres}';"
-psql -U postgres -h ${PGHOST:-postgres} -c "ALTER USER ${PSQL_USER:-postgres} WITH SUPERUSER;"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"items-${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "CREATE DATABASE \"userprofile-${THE_MINE_NAME}\";"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
-psql -U postgres -h ${PGHOST:-postgres} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
+# psql -U postgres -h ${THE_PGHOST} -c "CREATE USER ${PSQL_USER:-postgres} WITH PASSWORD '${PSQL_PWD:-postgres}';"
+psql -U postgres -h ${THE_PGHOST} -c "ALTER USER ${PSQL_USER:-postgres} WITH SUPERUSER;"
+psql -U postgres -h ${THE_PGHOST} -c "CREATE DATABASE \"${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "CREATE DATABASE \"items-${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "CREATE DATABASE \"userprofile-${THE_MINE_NAME}\";"
+psql -U postgres -h ${THE_PGHOST} -c "GRANT ALL PRIVILEGES ON DATABASE \"${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${THE_PGHOST} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
+psql -U postgres -h ${THE_PGHOST} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 
 
 cd ${THE_MINE_NAME}

@@ -83,6 +83,10 @@ services:
     user: ${DOCKER_UID}:${DOCKER_GID}
     volumes:
       - postgres_volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGDATA=/var/lib/postgresql/data
 
   solr:
     container_name: intermine_solr
