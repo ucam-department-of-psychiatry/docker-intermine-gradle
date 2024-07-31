@@ -22,7 +22,8 @@ RUN apk add --no-cache bash \
                        maven \
                        postgresql-client \
                        perl \
-                       perl-utils
+                       perl-utils \
+                       wait4x
 
 RUN apk add --no-cache build-base
 RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing perl-moosex

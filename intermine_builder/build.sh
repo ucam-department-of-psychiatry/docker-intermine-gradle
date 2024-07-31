@@ -6,6 +6,7 @@ THE_MINE_NAME=${MINE_NAME:-biotestmine}
 FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
 IM_VERSION=${IM_VERSION:-}
 BIO_VERSION=${BIO_VERSION:-}
+THE_PGPORT=${PGPORT:-5432}
 
 if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
@@ -100,7 +101,7 @@ if [ ! -f /home/intermine/.intermine/${THE_MINE_NAME}.properties ]; then
     sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
     sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${TOMCAT_HOST:-tomcat}:${TOMCAT_PORT:-8080}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
-    sed -i "s/serverName=localhost/serverName=${PGHOST:-postgres}:${PGPORT:-5432}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
+    sed -i "s/serverName=localhost/serverName=${PGHOST:-postgres}:${THE_PGPORT:-5432}/g" /home/intermine/.intermine/${THE_MINE_NAME}.properties
 
 
     # echo "project.rss=http://localhost:$WORDPRESS_PORT/?feed=rss2" >> /home/intermine/.intermine/${THE_MINE_NAME}.properties
@@ -156,11 +157,8 @@ fi
 echo "$(date +%Y/%m/%d-%H:%M) Connect and create Postgres databases" #>> /home/intermine/intermine/build.progress
 
 # # Wait for database
-# dockerize -wait tcp://postgres:$PGPORT -timeout 60s
-until psql -U postgres -h ${PGHOST:-postgres} -c '\l'; do
-  echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is unavailable - sleeping"
-  sleep 1
-done
+# dockerize -wait tcp://postgres:$THE_PGPORT -timeout 60s
+wait4x tcp postgres:5432 --timeout 120s
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
 # Close all open connections to database
