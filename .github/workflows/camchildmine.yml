@@ -51,6 +51,11 @@ jobs:
                   # Wait 15 minutes
                   wait-for-it localhost:9999 --timeout=900
 
+            - name: Check webapp
+              run: |
+                  set -eux -o pipefail
+                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/camCHILDMine/"
+
             - name: Dump Docker logs
               if: failure()
               run: |
@@ -61,7 +66,3 @@ jobs:
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs postgres
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs solr
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs tomcat
-            - name: Check webapp
-              run: |
-                  set -eux -o pipefail
-                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/camCHILDMine/"
