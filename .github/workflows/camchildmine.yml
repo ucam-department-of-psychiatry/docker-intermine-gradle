@@ -54,7 +54,7 @@ jobs:
             - name: Check webapp
               run: |
                   set -eux -o pipefail
-                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/camCHILDMine/"
+                  curl -I -L --retry 10 --fail --insecure "http://localhost:9999/camchildmine/"
 
             - name: Dump Docker logs
               if: failure()
