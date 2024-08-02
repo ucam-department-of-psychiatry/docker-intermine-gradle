@@ -27,21 +27,20 @@ jobs:
             - name: Make data dirs
               run: |
                   set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}
                   ./mkdatadirs.sh
                   mkdir ./data/mine/biotestmine
-            - name: Run
-              run: |
-                  set -eux -o pipefail
-                  cd ${GITHUB_WORKSPACE}
-                  # Try to trap any build errors early
-                  DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml run --rm intermine_builder
             - name: Up
               run: |
                   set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}
+                  # Use run to trap any build errors early
+                  # DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml run --rm intermine_builder
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml up -d
             - name: Wait
               run: |
                   set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}
                   # Wait for builder to finish and return exit code
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml wait intermine_builder
                   # Wait 15 minutes
@@ -51,6 +50,7 @@ jobs:
               if: failure()
               run: |
                   set -eux -o pipefail
+                  cd ${GITHUB_WORKSPACE}
                   sleep 120
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs intermine_builder
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs postgres
