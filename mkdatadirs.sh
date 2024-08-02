@@ -8,4 +8,6 @@ mkdir -p \
     ./data/postgres \
     ./data/solr
 
+sudo chown -R 8983:8983 ./data/solr
+
 echo "Don't forget to also mkdir ./data/mine/<your mine name>"
