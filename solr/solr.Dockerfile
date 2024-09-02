@@ -1,4 +1,4 @@
-FROM solr:8.4.1-slim
+FROM solr:8.11-slim
 LABEL maintainer="Ank"
 COPY --chown=solr:solr ./scripts/intermine.sh /opt/scripts/intermine.sh
 ENV MEM_OPTS="-Xmx2g -Xms1g"
