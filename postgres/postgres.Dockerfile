@@ -1,4 +1,4 @@
-FROM postgres:13
+FROM postgres:14
 LABEL maintainer="Ank"
 
 COPY ./init_postgresql.sh /docker-entrypoint-initdb.d/
