@@ -155,14 +155,16 @@ if [ -d /home/intermine/intermine/data ]; then
     fi
 else
     echo "$(date +%Y/%m/%d-%H:%M) No user data directory found"
+    mkdir -p /home/intermine/intermine/data/
     if [ ! -d /home/intermine/intermine/data/malaria ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy malaria-data to ~/data" #>> /home/intermine/intermine/build.progress
-        mkdir -p /home/intermine/intermine/data/
-        cp /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz /home/intermine/intermine/data/
-        cd /home/intermine/intermine/data/
-        tar -xf malaria-data.tar.gz
-        rm malaria-data.tar.gz
-        cd /home/intermine/intermine
+        if [ -f /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz ]; then
+            echo "$(date +%Y/%m/%d-%H:%M) Copy malaria-data to ~/data" #>> /home/intermine/intermine/build.progress
+            cp /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz /home/intermine/intermine/data/
+            cd /home/intermine/intermine/data/
+            tar -xf malaria-data.tar.gz
+            rm malaria-data.tar.gz
+            cd /home/intermine/intermine
+        fi
     fi
 fi
 
