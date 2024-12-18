@@ -87,7 +87,7 @@ COPY ./build.sh /home/intermine
 RUN chown -R intermine:intermine /home/intermine
 RUN chmod u+x /home/intermine/build.sh
 
-COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
+COPY ./wait-for-it/wait-for-it.sh /usr/local/bin/wait-for-it
 RUN chmod +x /usr/local/bin/wait-for-it
 
 WORKDIR /home/intermine/intermine
