@@ -90,8 +90,6 @@ RUN chmod u+x /home/intermine/build.sh
 COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
 RUN chmod +x /usr/local/bin/wait-for-it
 
-RUN ls -l /home/intermine >> /tmp/log.log
-
 WORKDIR /home/intermine/intermine
 
 USER intermine
