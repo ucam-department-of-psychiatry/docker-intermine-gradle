@@ -1,13 +1,15 @@
 #!/usr/bin/env sh
 
+THIS_DIR=$(dirname $0)
+
 mkdir -p \
-    ./data/mine/dump \
-    ./data/mine/configs \
-    ./data/mine/packages \
-    ./data/mine/intermine \
-    ./data/postgres \
-    ./data/solr
+    ${THIS_DIR}/data/mine/dump \
+    ${THIS_DIR}/data/mine/configs \
+    ${THIS_DIR}/data/mine/packages \
+    ${THIS_DIR}/data/mine/intermine \
+    ${THIS_DIR}/data/postgres \
+    ${THIS_DIR}/data/solr
 
-sudo chown -R 8983:8983 ./data/solr
+sudo chown -R 8983:8983 ${THIS_DIR}/data/solr
 
-echo "Don't forget to also mkdir ./data/mine/<your mine name>"
+echo "Don't forget to also mkdir ${THIS_DIR}/data/mine/<your mine name>"
