@@ -26,6 +26,10 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
     cd /home/intermine/intermine
     cd ${THE_MINE_NAME}
+    # If on opening the webapp you get the Tomcat error:
+    # HTTP Status 404 - /<yourmine>/ The requested resource is not available,
+    # implement the workaround at
+    # https://github.com/intermine/intermine/issues/2162#issuecomment-952099300
     ./gradlew cargoDeployRemote --stacktrace
     exit 0
 fi
