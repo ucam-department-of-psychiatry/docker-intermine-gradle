@@ -10,7 +10,11 @@ ARG USER_ID
 ARG GROUP_ID
 
 RUN addgroup --gid $GROUP_ID intermine
-RUN adduser -D -g '' -u $USER_ID -G intermine intermine
+
+# The --no-log-init is necessary to prevent the image ballooning in size
+# when USER_ID is large
+# See https://github.com/moby/moby/issues/5419
+RUN useradd --no-log-init --uid $USER_ID --gid $GROUP_ID intermine
 
 ENV JAVA_HOME="/usr/lib/jvm/default-jvm"
 
