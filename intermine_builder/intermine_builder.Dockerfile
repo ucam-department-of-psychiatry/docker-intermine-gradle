@@ -52,23 +52,15 @@ RUN cpanm --force Ouch \
                   Module::Find \
                   Web::Scraper \
                   Number::Format \
-                #   PerlIO::gzip \
                   Perl6::Junction \
-                #   List::MoreUtils \
                   Module::Find \
-                #   Moose \
-                #   MooseX::Role::WithOverloading \
                   MooseX::Types \
                   MooseX::FollowPBP \
                   MooseX::ABC \
                   MooseX::FileAttribute \
-                #   Text::CSV_XS \
                   Text::Glob \
                   XML::Parser::PerlSAX \
                   XML::DOM
-                #  Getopt::Std \
-                #  Digest::MD5 \
-                #  Log::Handler
 
 ENV MEM_OPTS="-Xmx1g -Xms500m"
 ENV GRADLE_OPTS="-server ${MEM_OPTS} -XX:+UseParallelGC -XX:SoftRefLRUPolicyMSPerMB=1 -XX:MaxHeapFreeRatio=99 -Dorg.gradle.daemon=false -Duser.home=/home/intermine"
