@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux -o pipefail
+set -euo pipefail
 
 THE_MINE_NAME=${MINE_NAME:-biotestmine}
 FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
@@ -26,6 +26,10 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
     cd /home/intermine/intermine
     cd ${THE_MINE_NAME}
+    # If on opening the webapp you get the Tomcat error:
+    # HTTP Status 404 - /<yourmine>/ The requested resource is not available,
+    # implement the workaround at
+    # https://github.com/intermine/intermine/issues/2162#issuecomment-952099300
     ./gradlew cargoDeployRemote --stacktrace
     exit 0
 fi
@@ -69,9 +73,6 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ]; then
 else
     # echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}" #>> /home/intermine/intermine/build.progress
     echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}"
-    echo "User: $(id -u)"
-    echo "Group: $(id -g)"
-    ls -l
     git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${THE_MINE_NAME}
     echo "$(date +%Y/%m/%d-%H:%M) Update keyword_search.properties to use http://solr" #>> /home/intermine/intermine/build.progress
     sed -i 's/localhost/'${THE_SOLR_HOST}'/g' ./${THE_MINE_NAME}/dbmodel/resources/keyword_search.properties
@@ -155,14 +156,16 @@ if [ -d /home/intermine/intermine/data ]; then
     fi
 else
     echo "$(date +%Y/%m/%d-%H:%M) No user data directory found"
+    mkdir -p /home/intermine/intermine/data/
     if [ ! -d /home/intermine/intermine/data/malaria ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy malaria-data to ~/data" #>> /home/intermine/intermine/build.progress
-        mkdir -p /home/intermine/intermine/data/
-        cp /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz /home/intermine/intermine/data/
-        cd /home/intermine/intermine/data/
-        tar -xf malaria-data.tar.gz
-        rm malaria-data.tar.gz
-        cd /home/intermine/intermine
+        if [ -f /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz ]; then
+            echo "$(date +%Y/%m/%d-%H:%M) Copy malaria-data to ~/data" #>> /home/intermine/intermine/build.progress
+            cp /home/intermine/intermine/${THE_MINE_NAME}/data/malaria-data.tar.gz /home/intermine/intermine/data/
+            cd /home/intermine/intermine/data/
+            tar -xf malaria-data.tar.gz
+            rm malaria-data.tar.gz
+            cd /home/intermine/intermine
+        fi
     fi
 fi
 

@@ -67,7 +67,7 @@ services:
       - MINE_NAME=${MINE_NAME}
       - MINE_REPO_URL=${MINE_REPO_URL}
       - IM_DATA_DIR=${IM_DATA_DIR}
-      - MEM_OPTS=${MEM_OPTS}
+      - MEM_OPTS=${BUILDER_MEM_OPTS}
       - IM_REPO_URL=${IM_REPO_URL}
       - IM_REPO_BRANCH=${IM_REPO_BRANCH}
       - PGPASSWORD=postgres
@@ -94,7 +94,7 @@ services:
       context: ./solr
       dockerfile: ./solr.Dockerfile
     environment:
-      - MEM_OPTS=${MEM_OPTS}
+      - MEM_OPTS=${SOLR_MEM_OPTS}
       - MINE_NAME=${MINE_NAME}
     volumes:
       - solr_volume:/var/solr
@@ -105,6 +105,6 @@ services:
       context: ./tomcat
       dockerfile: ./tomcat.Dockerfile
     environment:
-      - MEM_OPTS=${MEM_OPTS}
+      - MEM_OPTS=${TOMCAT_MEM_OPTS}
     ports:
       - ${TOMCAT_HOST_PORT}:${TOMCAT_PORT}
