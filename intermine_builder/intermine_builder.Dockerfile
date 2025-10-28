@@ -46,7 +46,8 @@ RUN perl -MCPAN -e \
 
 RUN cpan -i App::cpanminus
 
-RUN cpanm --force Ouch \
+RUN cpanm --notest \
+                  Ouch \
                   LWP \
                   URI \
                   Module::Find \
