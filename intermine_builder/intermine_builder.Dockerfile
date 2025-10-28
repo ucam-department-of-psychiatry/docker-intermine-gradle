@@ -1,4 +1,4 @@
-FROM alpine:3.12.5
+FROM alpine:3.22.2
 LABEL maintainer="Ank"
 
 # -----------------------------------------------------------------------------
@@ -25,13 +25,13 @@ RUN apk add --no-cache bash \
                        perl-utils
 
 RUN apk add --no-cache build-base
-RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing perl-moosex
 RUN apk add --no-cache wget \
                         perl-module-build \
                         perl-module-build-tiny \
                         perl-package-stash \
                         perl-sub-identify \
                         perl-moose \
+                        perl-moosex \
                         perl-datetime \
                         perl-html-parser \
                         perl-html-tree \
