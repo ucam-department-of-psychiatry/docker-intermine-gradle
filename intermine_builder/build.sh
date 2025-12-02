@@ -30,7 +30,7 @@ if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE
     # HTTP Status 404 - /<yourmine>/ The requested resource is not available,
     # implement the workaround at
     # https://github.com/intermine/intermine/issues/2162#issuecomment-952099300
-    ./gradlew cargoDeployRemote --stacktrace
+    ./gradlew cargoRedeployRemote --stacktrace
     exit 0
 fi
 
@@ -231,7 +231,7 @@ echo "$(date +%Y/%m/%d-%H:%M) Gradle: build userDB" #>> /home/intermine/intermin
 echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp" #>> /home/intermine/intermine/build.progress
 # ./gradlew clean
 # --stacktrace --debug --info --scan
-./gradlew cargoDeployRemote  --stacktrace
+./gradlew cargoRedeployRemote  --stacktrace
 
 # Debug: Keep the container going
 # tail -f /dev/null
