@@ -94,6 +94,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - PGDATA=/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
 
   solr:
     container_name: intermine_solr
@@ -105,6 +107,8 @@ services:
       - MINE_NAME=${MINE_NAME}
     volumes:
       - solr_volume:/var/solr
+    ports:
+      - ${SOLR_HOST_PORT}:${SOLR_PORT}
 
   tomcat:
     container_name: intermine_tomcat
