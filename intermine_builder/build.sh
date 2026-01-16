@@ -36,11 +36,10 @@ THE_MINE_KEYWORD_SEARCH_PROPERTIES="${THE_MINE_DIR}"/dbmodel/resources/keyword_s
 
 LOG_FILE="${PROJECT_ROOT}"/build.progress
 
-if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
+if [ -d ${THE_MINE_NAME} ] && [ -n "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
-    cd "${PROJECT_ROOT}"
-    cd ${THE_MINE_NAME}
+    cd "${THE_MINE_DIR}"
     # If on opening the webapp you get the Tomcat error:
     # HTTP Status 404 - /<yourmine>/ The requested resource is not available,
     # implement the workaround at
@@ -63,7 +62,7 @@ gradle_clean_install() {
 }
 
 # Build InterMine if any of the envvars are specified.
-if [ ! -z ${IM_REPO_URL} ] || [ ! -z ${IM_REPO_BRANCH} ]; then
+if [ -n "${IM_REPO_URL}" ] || [ -n "${IM_REPO_BRANCH}" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Start InterMine build" #>> "${LOG_FILE}"
     echo "$(date +%Y/%m/%d-%H:%M) Cloning ${IM_REPO_URL:-https://github.com/intermine/intermine} branch ${IM_REPO_BRANCH:-master} for InterMine build" #>> "${LOG_FILE}"
     git clone ${IM_REPO_URL:-https://github.com/intermine/intermine} intermine --single-branch --branch ${IM_REPO_BRANCH:-master} --depth=1
@@ -88,7 +87,7 @@ fi
 echo "Starting mine build"
 echo $MINE_REPO_URL
 # Check if mine exists and is not empty
-if [ -d ${THE_MINE_NAME} ] && [ ! -z "$(ls -A ${THE_MINE_NAME})" ]; then
+if [ -d ${THE_MINE_NAME} ] && [ -n "$(ls -A ${THE_MINE_NAME})" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Update ${THE_MINE_NAME} to newest version" #>> "${LOG_FILE}"
     cd ${THE_MINE_NAME}
     # git pull
@@ -103,10 +102,10 @@ fi
 
 # If InterMine or Bio versions have been set (likely because of a custom
 # InterMine build), update gradle.properties in the mine.
-if [ ! -z ${IM_VERSION} ]; then
+if [ -n "${IM_VERSION}" ]; then
     sed -i "s/\(systemProp\.imVersion=\).*\$/\1${IM_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
 fi
-if [ ! -z ${BIO_VERSION} ]; then
+if [ -n "${BIO_VERSION}" ]; then
     sed -i "s/\(systemProp\.bioVersion=\).*\$/\1${BIO_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
 fi
 
