@@ -22,7 +22,8 @@ RUN apk add --no-cache bash \
                        maven \
                        postgresql-client \
                        perl \
-                       perl-utils
+                       perl-utils \
+                       python3
 
 RUN apk add --no-cache build-base
 RUN apk add --no-cache wget \
