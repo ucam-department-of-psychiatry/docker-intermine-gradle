@@ -9,6 +9,8 @@ BIO_VERSION=${BIO_VERSION:-}
 
 THE_PGHOST=${PGHOST:-postgres}
 THE_PGPORT=${PGPORT:-5432}
+THE_PSQL_USER=${PSQL_USER:-postgres}
+THE_PSQL_PWD=${PSQL_PWD:-postgres}
 
 THE_SOLR_HOST=${SOLR_HOST:-solr}
 THE_SOLR_PORT=${SOLR_PORT:-8983}
@@ -17,14 +19,15 @@ THE_TOMCAT_HOST=${TOMCAT_HOST:-tomcat}
 THE_TOMCAT_PORT=${TOMCAT_PORT:-8080}
 
 # Bail out early if none of these is up
-wait-for-it ${THE_PGHOST}:${THE_PGPORT} -t 60
-wait-for-it ${THE_SOLR_HOST}:${THE_SOLR_PORT} -t 60
-wait-for-it ${THE_TOMCAT_HOST}:${THE_TOMCAT_PORT} -t 60
+wait-for-it "${THE_PGHOST}":"${THE_PGPORT}" -t 60
+wait-for-it "${THE_SOLR_HOST}":"${THE_SOLR_PORT}" -t 60
+wait-for-it "${THE_TOMCAT_HOST}":"${THE_TOMCAT_PORT}" -t 60
 
 HOME_DIR=/home/intermine
 
 DOT_INTERMINE_DIR="${HOME_DIR}"/.intermine
 THE_MINE_PROPERTIES="${DOT_INTERMINE_DIR}"/"${THE_MINE_NAME}".properties
+INTERMINE_TEST_PROPERTIES="${DOT_INTERMINE_DIR}"/intermine-test.properties
 
 PROJECT_ROOT="${HOME_DIR}"/intermine
 
@@ -61,11 +64,25 @@ gradle_clean_install() {
     ./gradlew install --stacktrace
 }
 
+copy_properties() {
+    local source=$1
+    local target=$2
+
+    echo "#--- creating $target"
+    cp "$source" "$target"
+    sed -i -e "s/PSQL_HOST/${THE_PGHOST}/" "$target"
+    sed -i -e "s/PSQL_USER/${THE_PSQL_USER}/" "$target"
+    sed -i -e "s/PSQL_PWD/${THE_PSQL_PWD}/" "$target"
+}
+
+
 # Build InterMine if any of the envvars are specified.
 if [ -n "${IM_REPO_URL}" ] || [ -n "${IM_REPO_BRANCH}" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Start InterMine build" #>> "${LOG_FILE}"
     echo "$(date +%Y/%m/%d-%H:%M) Cloning ${IM_REPO_URL:-https://github.com/intermine/intermine} branch ${IM_REPO_BRANCH:-master} for InterMine build" #>> "${LOG_FILE}"
     git clone ${IM_REPO_URL:-https://github.com/intermine/intermine} intermine --single-branch --branch ${IM_REPO_BRANCH:-master} --depth=1
+
+    copy_properties "${INTERMINE_DIR}"/config/ci.properties "${INTERMINE_TEST_PROPERTIES}"
 
     gradle_clean_install "${INTERMINE_DIR}"/plugin
     gradle_clean_install "${INTERMINE_DIR}"/intermine
@@ -132,8 +149,8 @@ if [ ! -f "${THE_MINE_PROPERTIES}" ]; then
 
     #sed -i "s/PSQL_PORT/${THE_PGPORT}/g" "${THE_MINE_PROPERTIES}"
     sed -i "s/PSQL_DB_NAME/${THE_MINE_NAME}/g" "${THE_MINE_PROPERTIES}"
-    sed -i "s/PSQL_USER/${PSQL_USER:-postgres}/g" "${THE_MINE_PROPERTIES}"
-    sed -i "s/PSQL_PWD/${PSQL_PWD:-postgres}/g" "${THE_MINE_PROPERTIES}"
+    sed -i "s/PSQL_USER/${THE_PSQL_USER}/g" "${THE_MINE_PROPERTIES}"
+    sed -i "s/PSQL_PWD/${THE_PSQL_PWD}/g" "${THE_MINE_PROPERTIES}"
     sed -i "s/TOMCAT_USER/${TOMCAT_USER:-tomcat}/g" "${THE_MINE_PROPERTIES}"
     sed -i "s/TOMCAT_PWD/${TOMCAT_PWD:-tomcat}/g" "${THE_MINE_PROPERTIES}"
     sed -i "s/webapp.deploy.url=http:\/\/localhost:8080/webapp.deploy.url=http:\/\/${THE_TOMCAT_HOST}:${THE_TOMCAT_PORT}/g" "${THE_MINE_PROPERTIES}"
