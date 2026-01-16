@@ -77,6 +77,7 @@ services:
       - MEM_OPTS=${BUILDER_MEM_OPTS}
       - IM_REPO_URL=${IM_REPO_URL}
       - IM_REPO_BRANCH=${IM_REPO_BRANCH}
+      - IM_CHECKOUT=${IM_CHECKOUT}
       - PGPASSWORD=postgres
     depends_on:
       - postgres
