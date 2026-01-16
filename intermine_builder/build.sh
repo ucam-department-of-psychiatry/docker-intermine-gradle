@@ -39,7 +39,7 @@ THE_MINE_KEYWORD_SEARCH_PROPERTIES="${THE_MINE_DIR}"/dbmodel/resources/keyword_s
 
 LOG_FILE="${PROJECT_ROOT}"/build.progress
 
-if [ -d ${THE_MINE_NAME} ] && [ -n "$(ls -A ${THE_MINE_NAME})" ] && [ ! $FORCE_MINE_BUILD ]; then
+if [ -d "${THE_MINE_NAME}" ] && [ -n "$(ls -A ${THE_MINE_NAME})" ] && [ ! "$FORCE_MINE_BUILD" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
     cd "${THE_MINE_DIR}"
@@ -238,7 +238,7 @@ psql -U postgres -h ${THE_PGHOST} -c "GRANT ALL PRIVILEGES ON DATABASE \"items-$
 psql -U postgres -h ${THE_PGHOST} -c "GRANT ALL PRIVILEGES ON DATABASE \"userprofile-${THE_MINE_NAME}\" to ${PSQL_USER:-postgres};"
 
 
-cd ${THE_MINE_NAME}
+cd "${THE_MINE_DIR}"
 
 echo "$(date +%Y/%m/%d-%H:%M) Running project_build script"
 ./project_build -b -T localhost "${PROJECT_ROOT}"/dump/dump
