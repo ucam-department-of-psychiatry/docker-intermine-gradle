@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 THE_MINE_NAME=${MINE_NAME:-biotestmine}
 FORCE_MINE_BUILD=${FORCE_MINE_BUILD:-0}
