@@ -39,7 +39,7 @@ THE_MINE_KEYWORD_SEARCH_PROPERTIES="${THE_MINE_DIR}"/dbmodel/resources/keyword_s
 
 LOG_FILE="${PROJECT_ROOT}"/build.progress
 
-if [ -d "${THE_MINE_NAME}" ] && [ -n "$(ls -A ${THE_MINE_NAME})" ] && [ ! "$FORCE_MINE_BUILD" ]; then
+if [ -d "${THE_MINE_DIR}" ] && [ -n "$(ls -A ${THE_MINE_DIR})" ] && [ ! "$FORCE_MINE_BUILD" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Mine ${THE_MINE_NAME} already exists"
     echo "$(date +%Y/%m/%d-%H:%M) Gradle: build webapp"
     cd "${THE_MINE_DIR}"
