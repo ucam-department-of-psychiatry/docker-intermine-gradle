@@ -124,11 +124,17 @@ fi
 
 # If InterMine or Bio versions have been set (likely because of a custom
 # InterMine build), update gradle.properties in the mine.
-if [ -n "${IM_VERSION}" ]; then
-    sed -i "s/\(systemProp\.imVersion=\).*\$/\1${IM_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
-fi
-if [ -n "${BIO_VERSION}" ]; then
-    sed -i "s/\(systemProp\.bioVersion=\).*\$/\1${BIO_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
+
+if [ -f "${THE_MINE_GRADLE_PROPERTIES}" ]; then
+    # cadremine generates gradle.properties from gradle.properties.in
+    # so only do this stage if the files exist.
+
+    if [ -n "${IM_VERSION}" ]; then
+        sed -i "s/\(systemProp\.imVersion=\).*\$/\1${IM_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
+    fi
+    if [ -n "${BIO_VERSION}" ]; then
+        sed -i "s/\(systemProp\.bioVersion=\).*\$/\1${BIO_VERSION}/" "${THE_MINE_GRADLE_PROPERTIES}"
+    fi
 fi
 
 # Copy project_build from intermine_scripts repo
