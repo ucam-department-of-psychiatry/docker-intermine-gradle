@@ -27,7 +27,18 @@ HOME_DIR=/home/intermine
 
 DOT_INTERMINE_DIR="${HOME_DIR}"/.intermine
 THE_MINE_PROPERTIES="${DOT_INTERMINE_DIR}"/"${THE_MINE_NAME}".properties
-INTERMINE_TEST_PROPERTIES="${DOT_INTERMINE_DIR}"/intermine-test.properties
+
+# Potential for confusion here:
+#
+#           1         2         3         4
+# /home/intermine/intermine/intermine/intermine
+#
+# 1. The intermine user's home directory
+# 2. The overall project root containing the other repositories
+# 3. The Git checkout of the intermine project
+# 4. The intermine Gradle project
+#
+# TODO: Better names?
 
 PROJECT_ROOT="${HOME_DIR}"/intermine
 
@@ -50,8 +61,6 @@ if [ -d "${THE_MINE_DIR}" ] && [ -n "$(ls -A ${THE_MINE_DIR})" ] && [ ! "$FORCE_
     ./gradlew cargoRedeployRemote --stacktrace
     exit 0
 fi
-
-cd "${PROJECT_ROOT}"
 
 # Empty log
 echo "" > "${LOG_FILE}"
@@ -80,39 +89,35 @@ copy_properties() {
 if [ -n "${IM_REPO_URL}" ] || [ -n "${IM_REPO_BRANCH}" ]; then
     echo "$(date +%Y/%m/%d-%H:%M) Start InterMine build" #>> "${LOG_FILE}"
     echo "$(date +%Y/%m/%d-%H:%M) Cloning ${IM_REPO_URL:-https://github.com/intermine/intermine} branch ${IM_REPO_BRANCH:-master} for InterMine build" #>> "${LOG_FILE}"
+    cd "${PROJECT_ROOT}"
     git clone ${IM_REPO_URL:-https://github.com/intermine/intermine} intermine --single-branch --branch ${IM_REPO_BRANCH:-master} --depth=1
 
-    copy_properties "${INTERMINE_DIR}"/config/ci.properties "${INTERMINE_TEST_PROPERTIES}"
+    export PSQL_HOST=${THE_PGHOST}
+    export PSQL_USER=${THE_PSQL_USER}
+    export PSQL_PWD=${THE_PSQL_PWD}
+    python3 "${INTERMINE_DIR}/config/lib/install_intermine.py"
 
-    gradle_clean_install "${INTERMINE_DIR}"/plugin
-    gradle_clean_install "${INTERMINE_DIR}"/intermine
-    gradle_clean_install "${INTERMINE_DIR}"/bio
-    gradle_clean_install "${INTERMINE_DIR}"/bio/sources
-    gradle_clean_install "${INTERMINE_DIR}"/bio/postprocess
-
-    cd "${INTERMINE_DIR}"
+    INTERMINE_BUILD_GRADLE="${INTERMINE_DIR}"/intermine/build.gradle
+    BIO_BUILD_GRADLE="${INTERMINE_DIR}"/bio/build.gradle
 
     # Read the version numbers of the built InterMine, as we'll need to set
     # the mine to use the same versions for it to use the local build.
-    IM_VERSION=$(sed -n "s/^\s*version.*\+'\(.*\)'\s*$/\1/p" intermine/build.gradle)
-    BIO_VERSION=$(sed -n "s/^\s*version.*\+'\(.*\)'\s*$/\1/p" bio/build.gradle)
-
-    cd "${INTERMINE_DIR}"
+    IM_VERSION=$(sed -n "s/^\s*version.*\+'\(.*\)'\s*$/\1/p" ${INTERMINE_BUILD_GRADLE})
+    BIO_VERSION=$(sed -n "s/^\s*version.*\+'\(.*\)'\s*$/\1/p" ${BIO_BUILD_GRADLE})
 fi
 
 
 echo "Starting mine build"
 echo $MINE_REPO_URL
 # Check if mine exists and is not empty
-if [ -d ${THE_MINE_NAME} ] && [ -n "$(ls -A ${THE_MINE_NAME})" ]; then
+if [ -d "${THE_MINE_DIR}" ] && [ -n "$(ls -A ${THE_MINE_DIR})" ]; then
+    # TODO: Should this be enabled?
     echo "$(date +%Y/%m/%d-%H:%M) Update ${THE_MINE_NAME} to newest version" #>> "${LOG_FILE}"
-    cd ${THE_MINE_NAME}
+    cd "${THE_MINE_DIR}"
     # git pull
-    cd "${PROJECT_ROOT}"
 else
-    # echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}" #>> "${LOG_FILE}"
-    echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}"
-    git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} ${THE_MINE_NAME}
+    echo "$(date +%Y/%m/%d-%H:%M) Clone ${THE_MINE_NAME}" #>> "${LOG_FILE}"
+    git clone ${MINE_REPO_URL:-https://github.com/intermine/biotestmine} "${THE_MINE_DIR}"
     echo "$(date +%Y/%m/%d-%H:%M) Update ${THE_MINE_KEYWORD_SEARCH_PROPERTIES} to use http://solr" #>> "${LOG_FILE}"
     sed -i 's/localhost/'${THE_SOLR_HOST}'/g' "${THE_MINE_KEYWORD_SEARCH_PROPERTIES}"
 fi
@@ -128,6 +133,7 @@ fi
 
 # Copy project_build from intermine_scripts repo
 if [ ! -f "${THE_MINE_DIR}"/project_build ]; then
+    cd "${PROJECT_ROOT}"
     echo "$(date +%Y/%m/%d-%H:%M) Cloning intermine scripts repo to "${PROJECT_ROOT}"/intermine-scripts"
     git clone https://github.com/intermine/intermine-scripts
     echo "$(date +%Y/%m/%d-%H:%M) Copy project_build to "${THE_MINE_DIR}""
@@ -164,7 +170,7 @@ fi
 # Copy mine configs
 if [ ! -f "${THE_MINE_DIR}"/project.xml ]; then
     if [ -f "${PROJECT_ROOT}"/configs/project.xml ]; then
-        echo "$(date +%Y/%m/%d-%H:%M) Copy project.xml to ~/${THE_MINE_NAME}/project.xml"
+        echo "$(date +%Y/%m/%d-%H:%M) Copy project.xml to ~/${THE_MINE_DIR}/project.xml"
         cp "${PROJECT_ROOT}"/configs/project.xml "${THE_MINE_DIR}"/
         echo "$(date +%Y/%m/%d-%H:%M) Set correct source path in project.xml"
         sed -i 's/'${IM_DATA_DIR:-DATA_DIR}'/\/home\/intermine\/intermine\/data/g' "${THE_MINE_DIR}"/project.xml
@@ -191,7 +197,6 @@ if [ -d "${PROJECT_ROOT}"/data ]; then
         for f in *.tar.gz; do
             tar xzf "$f" && rm "$f"
         done
-        cd "${PROJECT_ROOT}"
     fi
 else
     echo "$(date +%Y/%m/%d-%H:%M) No user data directory found"
@@ -203,7 +208,6 @@ else
             cd "${PROJECT_ROOT}"/data/
             tar -xf malaria-data.tar.gz
             rm malaria-data.tar.gz
-            cd "${PROJECT_ROOT}"
         fi
     fi
 fi
